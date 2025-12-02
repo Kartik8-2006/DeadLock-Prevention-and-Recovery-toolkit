@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Deadlock Prevention & Recovery Toolkit</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <h1>Deadlock Toolkit</h1>
+      <div class="controls">
+        <button id="refresh">Refresh</button>
+      </div>
+    </header>
+    <main class="grid">
+      <section class="card" id="section1">
+        <h2>Resource Matrices</h2>
+        <div id="mat-content"></div>
+        <h2 style="margin-top:16px;">Wait-For Graph</h2>
+        <div id="wfg"></div>
+      </section>
+      <section class="card" id="section2">
+        <h2>Create Process</h2>
+        <form id="create-form">
+          <input placeholder="pid" id="pid" required />
+          <input placeholder="maximum (comma separated)" id="max" required />
+          <button>Create</button>
+        </form>
+        <h3>Controls</h3>
+        <form id="request-form">
+          <input placeholder="pid" id="rpid" required />
+          <input placeholder="request (comma sep)" id="req" required />
+          <select id="mode"><option value="banker">Banker's</option><option value="immediate">Immediate</option></select>
+          <button>Request</button>
+        </form>
+        <form id="release-form">
+          <input placeholder="pid" id="relpid" required />
+          <input placeholder="release (comma sep)" id="rel" required />
+          <button>Release</button>
+        </form>
+      </section>
+      <section class="card" id="section3">
+        <h2>Activity Log</h2>
+        <div id="cycles"></div>
+        <div id="action-log"></div>
+      </section>
+    </main>
+  </div>
+  <script src="/static/app.js?v=2"></script>
+</body>
+</html>
