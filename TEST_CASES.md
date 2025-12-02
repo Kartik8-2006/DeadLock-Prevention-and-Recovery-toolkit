@@ -137,12 +137,11 @@
 ## 3. RESOURCE RELEASE TESTS
 
 ### Test 3.1: Valid Resource Release
-**Precondition:** P0 has allocation [2,1,2]
-
-**Steps:**
-1. Select PID: `P0`
-2. Enter Release: `1,0,1`
-3. Click Release
+Reset the system (click refresh button)
+Create P0 with a maximum like [7,3,5] or [5,3,4]
+Request resources to give P0 allocation of [2,1,2]
+For example: P0 requests [2,1,2]
+Then release [1,0,1]
 
 **Expected Result:**
 - ✅ Success message
@@ -154,8 +153,12 @@
 **Precondition:** P0 has allocation [2,1,2]
 
 **Steps:**
-1. P0 releases [3,2,3] (more than holding)
-2. Click Release
+Enter PID: P0
+Enter Maximum: 7,3,5
+Select PID: P0
+Enter Request: 2,1,2
+Select PID: P0
+Enter Release: 3,2,3
 
 **Expected Result:**
 - ❌ Error in Activity Log

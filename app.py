@@ -76,6 +76,10 @@ def release():
 def status():
     return jsonify(manager.snapshot())
 
+@app.route('/api/state', methods=['GET'])
+def state():
+    return jsonify(manager.snapshot())
+
 @app.route('/api/wfg', methods=['GET'])
 def wfg():
     snap = manager.snapshot()

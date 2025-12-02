@@ -34,6 +34,9 @@ class ResourceManager:
                 raise ValueError(f"PID {pid} exists")
             if len(maximum) != len(self.total):
                 raise ValueError("Maximum vector length mismatch")
+            # Check if maximum exceeds total system resources
+            if any(maximum[i] > self.total[i] for i in range(len(maximum))):
+                raise ValueError(f"Maximum resource requirements exceed system capacity")
             self.processes[pid] = {'priority': priority, 'checkpoint': None}
             self.allocations[pid] = [0]*len(self.total)
             self.maximum[pid] = list(maximum)

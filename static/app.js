@@ -170,7 +170,7 @@ document.getElementById('create-form').addEventListener('submit', async (e)=>{
   if(json.status) {
     const resourceTypes = ['R0', 'R1', 'R2'];
     const maxDetails = max.map((val, idx) => `${resourceTypes[idx]}:${val}`).join(', ');
-    logAction(`✓ <strong>Process Created:</strong> ${pid}<br/><span style="font-size:11px;color:#90EE90;margin-left:16px;">▸ Maximum need declared: [${maxDetails}]<br/>▸ Initial allocation: [0, 0, 0]<br/>▸ Process added to system ready queue</span>`, 'success');
+    logAction(`✓ <strong>Process Created:</strong> ${pid}<br/><span style="font-size:11px;color:#90EE90;">▸ Maximum need declared: [${maxDetails}]<br/>▸ Initial allocation: [0, 0, 0]<br/>▸ Process added to system ready queue</span>`, 'success');
   } else {
     let errorCause = '';
     let solution = '';
@@ -184,7 +184,7 @@ document.getElementById('create-form').addEventListener('submit', async (e)=>{
       errorCause = json.error;
       solution = 'Check input format: PID should be string, maximum should be comma-separated numbers';
     }
-    logAction(`✗ <strong>Process Creation Failed:</strong> ${pid}<br/><span style="font-size:11px;color:#ffb3b3;margin-left:16px;">▸ Error: ${json.error}<br/><div style="background:rgba(255,107,107,0.15);padding:6px;margin-top:6px;border-radius:4px;border-left:2px solid #ff6b6b;"><strong style="color:#ff8888;">⚠ CAUSE:</strong> ${errorCause}<br/><strong style="color:#88ff88;">✓ SOLUTION:</strong> ${solution}</div></span>`, 'error');
+    logAction(`✗ <strong>Process Creation Failed:</strong> ${pid}<br/><span style="font-size:11px;color:#ffb3b3;">▸ Error: ${json.error}<br/><div style="background:rgba(255,107,107,0.15);padding:6px;margin-top:6px;border-radius:4px;border-left:2px solid #ff6b6b;"><strong style="color:#ff8888;">⚠ CAUSE:</strong> ${errorCause}<br/><strong style="color:#88ff88;">✓ SOLUTION:</strong> ${solution}</div></span>`, 'error');
   }
   document.getElementById('pid').value = '';
   document.getElementById('max').value = '';
@@ -202,17 +202,17 @@ document.getElementById('request-form').addEventListener('submit', async (e)=>{
     const reqDetails = req.map((val, idx) => `${resourceTypes[idx]}:${val}`).join(', ');
     const safeSeq = j.order && j.order.length > 0 ? j.order.join(' → ') : 'N/A';
     const modeDetails = mode === 'banker' 
-      ? `▸ Safe sequence found: ${safeSeq}<br/>▸ System remains in SAFE state` 
-      : `▸ Resources allocated without safety check<br/>▸ ⚠️ Warning: Deadlock prevention not active`;
-    logAction(`✓ <strong>Resource Request Granted:</strong> ${pid}<br/><span style="font-size:11px;color:#b3e3e3;margin-left:16px;">▸ Requested: [${reqDetails}]<br/>▸ Mode: ${mode === 'banker' ? "Banker's Algorithm" : 'Immediate Allocation'}<br/>${modeDetails}</span>`, 'success');
+      ? `▸ Safe sequence found: ${safeSeq}<br/><div style="background:rgba(104,243,227,0.15);padding:8px;margin-top:8px;border-radius:4px;border-left:3px solid #68F3E3;"><strong style="color:#68F3E3;">✅ SYSTEM STATE: SAFE</strong><br/><span style="font-size:11px;color:#b3e3e3;">All processes can complete in the found sequence. No deadlock possible.</span></div>` 
+      : `▸ Resources allocated without safety check<br/><div style="background:rgba(255,170,136,0.15);padding:8px;margin-top:8px;border-radius:4px;border-left:3px solid #ffaa88;"><strong style="color:#ffaa88;">⚠️ SYSTEM STATE: UNKNOWN</strong><br/><span style="font-size:11px;color:#ffb3b3;">Safety not verified. Deadlock prevention not active.</span></div>`;
+    logAction(`✓ <strong>Resource Request Granted:</strong> ${pid}<br/><span style="font-size:11px;color:#b3e3e3;">▸ Requested: [${reqDetails}]<br/>▸ Mode: ${mode === 'banker' ? "Banker's Algorithm" : 'Immediate Allocation'}<br/>${modeDetails}</span>`, 'success');
   } else if(j.status === 'waiting') {
     const resourceTypes = ['R0', 'R1', 'R2'];
     const reqDetails = req.map((val, idx) => `${resourceTypes[idx]}:${val}`).join(', ');
-    logAction(`⏳ <strong>Request Denied - Process Blocked:</strong> ${pid}<br/><span style="font-size:11px;color:#b3b3b3;margin-left:16px;">▸ Requested: [${reqDetails}]<br/>▸ Granting this request would lead to UNSAFE state<br/>▸ Process added to waiting queue<br/>▸ Will retry when resources become available</span>`, 'warning');
+    logAction(`⏳ <strong>Request Denied - Process Blocked:</strong> ${pid}<br/><span style="font-size:11px;color:#b3b3b3;">▸ Requested: [${reqDetails}]<br/>▸ Mode: Banker's Algorithm<br/><div style="background:rgba(255,107,107,0.15);padding:8px;margin-top:8px;border-radius:4px;border-left:3px solid #ff6b6b;"><strong style="color:#ff6b6b;">❌ SYSTEM STATE: UNSAFE</strong><br/><span style="font-size:11px;color:#ffb3b3;">Granting this would lead to unsafe state. Process added to waiting queue.</span></div></span>`, 'warning');
   } else if(j.error) {
     let errorCause = '';
     let solution = '';
-    if(j.error.includes('not found') || j.error.includes('does not exist')) {
+    if(j.error.includes('not found') || j.error.includes('does not exist') || j.error === pid || j.error === `'${pid}'`) {
       errorCause = 'Process does not exist in the system';
       solution = 'Create the process first before requesting resources';
     } else if(j.error.includes('exceeds maximum') || j.error.includes('exceed')) {
@@ -225,7 +225,7 @@ document.getElementById('request-form').addEventListener('submit', async (e)=>{
       errorCause = j.error;
       solution = 'Verify process exists and request values are valid non-negative integers';
     }
-    logAction(`✗ <strong>Request Failed:</strong> ${pid}<br/><span style="font-size:11px;color:#ffb3b3;margin-left:16px;">▸ Requested: [${req.join(', ')}]<br/>▸ Error: ${j.error}<br/><div style="background:rgba(255,107,107,0.15);padding:6px;margin-top:6px;border-radius:4px;border-left:2px solid #ff6b6b;"><strong style="color:#ff8888;">⚠ CAUSE:</strong> ${errorCause}<br/><strong style="color:#88ff88;">✓ SOLUTION:</strong> ${solution}</div></span>`, 'warning');
+    logAction(`✗ <strong>Request Failed:</strong> ${pid}<br/><span style="font-size:11px;color:#ffb3b3;">▸ Requested : [${req.join(', ')}]<br/>▸ Error : ${j.error}<br/><div style="background:rgba(255,107,107,0.15);padding:8px;margin-top:8px;border-radius:4px;border-left:3px solid #ff6b6b;"><strong style="color:#ff6b6b;">⚠ CAUSE:</strong> ${errorCause}<br/><strong style="color:#68F3E3;">✓ SOLUTION:</strong> ${solution}</div></span>`, 'warning');
   }
   document.getElementById('rpid').value = '';
   document.getElementById('req').value = '';
@@ -240,7 +240,20 @@ document.getElementById('release-form').addEventListener('submit', async (e)=>{
   if(json.status === 'released') {
     const resourceTypes = ['R0', 'R1', 'R2'];
     const relDetails = rel.map((val, idx) => `${resourceTypes[idx]}:${val}`).join(', ');
-    logAction(`✓ <strong>Resources Released:</strong> ${pid}<br/><span style="font-size:11px;color:#b3e3b3;margin-left:16px;">▸ Released: [${relDetails}]<br/>▸ Resources returned to available pool<br/>▸ Waiting processes may now proceed<br/>▸ System checking for pending requests...</span>`, 'success');
+    
+    // Fetch updated state to check if all resources released
+    try {
+      const stateRes = await fetch('/api/state');
+      const state = await stateRes.json();
+      console.log('Current allocation for', pid, ':', state.allocations[pid]);
+      const allReleased = state.allocations[pid] && state.allocations[pid].every(val => val === 0);
+      console.log('All resources released?', allReleased);
+      const completeMsg = allReleased ? '<br/><div style="background:rgba(104,243,227,0.15);padding:8px;margin-top:8px;border-radius:4px;border-left:3px solid #68F3E3;"><strong style="color:#68F3E3;">ALL RESOURCES COMPLETELY RELEASED</strong><br/><span style="font-size:11px;color:#b3e3e3;">Process has returned all resources to the system<br/>Current allocation becomes: [0, 0, 0]</span></div>' : '';
+      logAction(`✓ <strong>Resources Released:</strong> ${pid}<br/><span style="font-size:11px;color:#90EE90;">▸ Released: [${relDetails}]<br/>▸ Resources returned to available pool${completeMsg}<br/>▸ Waiting processes may now proceed</span>`, 'success');
+    } catch(err) {
+      // Fallback if state fetch fails
+      logAction(`✓ <strong>Resources Released:</strong> ${pid}<br/><span style="font-size:11px;color:#90EE90;">▸ Released: [${relDetails}]<br/>▸ Resources returned to available pool<br/>▸ Waiting processes may now proceed</span>`, 'success');
+    }
   } else if(json.error) {
     let errorCause = '';
     let solution = '';
