@@ -9,37 +9,66 @@
   <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
-  <div class="app">
-    <header class="topbar">
-      <h1>Deadlock Toolkit</h1>
-      <div class="controls">
-        <button id="refresh">Refresh</button>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <span class="navbar-logo">🔒</span>
+      <span class="navbar-title">Deadlock Prevention & Recovery</span>
+    </div>
+    <div class="navbar-menu">
+      <a href="#" class="navbar-link">Dashboard</a>
+      <a href="#" class="navbar-link">Documentation</a>
+      <a href="#" class="navbar-link">About</a>
+    </div>
+    <div class="navbar-controls">
+      <button id="graph-modal-btn" title="View Graph">📊</button>
+      <button id="theme-toggle" title="Toggle theme">🌙</button>
+      <button id="refresh" title="Refresh">🔄</button>
+    </div>
+  </nav>
+  
+  <!-- Graph Modal -->
+  <div id="graph-modal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Wait-For Graph</h2>
+        <button id="close-modal" class="close-btn">×</button>
       </div>
-    </header>
+      <div class="modal-body">
+        <div id="wfg-modal"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="app">
     <main class="grid">
       <section class="card" id="section1">
         <h2>Resource Matrices</h2>
         <div id="mat-content"></div>
-        <h2 style="margin-top:16px;">Wait-For Graph</h2>
-        <div id="wfg"></div>
+        <div id="wfg" style="display:none;"></div>
       </section>
       <section class="card" id="section2">
         <h2>Create Process</h2>
-        <form id="create-form">
-          <input placeholder="pid" id="pid" required />
-          <input placeholder="maximum (comma separated)" id="max" required />
+        <form id="create-form" autocomplete="off">
+          <div class="form-row">
+            <input placeholder="pid" id="pid" required autocomplete="off" />
+            <input placeholder="maximum (comma separated)" id="max" required autocomplete="off" />
+          </div>
           <button>Create</button>
         </form>
         <h3>Controls</h3>
-        <form id="request-form">
-          <input placeholder="pid" id="rpid" required />
-          <input placeholder="request (comma sep)" id="req" required />
+        <form id="request-form" style="margin-bottom:34px;" autocomplete="off">
+          <div class="form-row">
+            <input placeholder="pid" id="rpid" required autocomplete="off" />
+            <input placeholder="request (comma sep)" id="req" required autocomplete="off" />
+          </div>
           <select id="mode"><option value="banker">Banker's</option><option value="immediate">Immediate</option></select>
           <button>Request</button>
         </form>
-        <form id="release-form">
-          <input placeholder="pid" id="relpid" required />
-          <input placeholder="release (comma sep)" id="rel" required />
+        <form id="release-form" autocomplete="off">
+          <div class="form-row">
+            <input placeholder="pid" id="relpid" required autocomplete="off" />
+            <input placeholder="release (comma sep)" id="rel" required autocomplete="off" />
+          </div>
           <button>Release</button>
         </form>
       </section>
