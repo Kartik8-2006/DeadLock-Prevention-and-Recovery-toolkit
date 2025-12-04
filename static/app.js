@@ -7,12 +7,11 @@ const themeToggle = document.getElementById('theme-toggle');
 const currentTheme = localStorage.getItem('theme') || 'dark';
 if(currentTheme === 'light') {
   document.documentElement.setAttribute('data-theme', 'light');
-  themeToggle.textContent = '☀️';
+  themeToggle.checked = true;
 }
-themeToggle.addEventListener('click', () => {
-  const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+themeToggle.addEventListener('change', () => {
+  const theme = themeToggle.checked ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', theme === 'light' ? 'light' : '');
-  themeToggle.textContent = theme === 'light' ? '☀️' : '🌙';
   localStorage.setItem('theme', theme);
   // Redraw WFG with new theme colors
   refresh();
@@ -317,7 +316,7 @@ function renderWFG(wfg, cycles, allocations = {}){
     explanation = '🔄 <strong>System Initialized</strong><br/>No processes currently in the system. Create your first process to begin the deadlock prevention simulation.';
   } else if(nlist.length === 0 && processCount > 0) {
     const processList = Object.keys(allocations).join(', ');
-    explanation = `✅ <strong style="color:#68F3E3;">Processes Created Successfully</strong><br/><br/><strong>Active processes:</strong> ${processList}<br/><br/><strong>Current state:</strong><br/>• ${processCount} process${processCount !== 1 ? 'es' : ''} ready and initialized<br/>• No resource requests made yet<br/>• All processes are in initial state with zero allocations<br/>• You can now request resources using the Request Resources form`;
+    explanation = `<strong style="color:#3a9b3aff;">Processes Created Successfully</strong><br/><br/><strong>Active processes:</strong> ${processList}<br/><br/><strong>Current state:</strong><br/>• ${processCount} process${processCount !== 1 ? 'es' : ''} ready and initialized<br/>• No resource requests made yet<br/>• All processes are in initial state with zero allocations<br/>• You can now request resources using the Request Resources form`;
   } else if(cycles.length > 0) {
     const cycleDetails = cycles.map(c => {
       const cycle = c.join(' → ') + ' → ' + c[0];
@@ -333,7 +332,7 @@ function renderWFG(wfg, cycles, allocations = {}){
     }).join('<br/>');
     explanation = `⏳ <strong style="color:#ffa500;">System has Waiting Processes</strong><br/><br/><strong>Current wait-for relationships:</strong><br/>${waitDetails}<br/><br/><strong>What this means:</strong><br/>• Arrows show which processes are waiting for resources<br/>${explanationDetails}<br/>• <span style="color:#228B22;">✓ No circular dependencies detected</span> - waiting processes will complete when resources are released<br/>• System is currently safe but has blocked processes`;
   } else {
-    explanation = `✅ <strong style="color:#68F3E3;">All Processes Running Independently</strong><br/><br/><strong>Current state:</strong><br/>• ${nlist.length} active process${nlist.length !== 1 ? 'es' : ''}: <strong>${nlist.map(n => n.id).join(', ')}</strong><br/>• No resource contention or waiting relationships<br/>• Each process has all the resources it needs<br/>• System is operating without blocked processes<br/><br/><strong>Note:</strong> If using Immediate mode, safety is not guaranteed. Use Banker's Algorithm for deadlock prevention.`;
+    explanation = `<strong style="color:#3a9b3aff;">All Processes Running Independently</strong><br/><br/><strong>Current state:</strong><br/>• ${nlist.length} active process${nlist.length !== 1 ? 'es' : ''}: <strong>${nlist.map(n => n.id).join(', ')}</strong><br/>• No resource contention or waiting relationships<br/>• Each process has all the resources it needs<br/>• System is operating without blocked processes<br/><br/><strong>Note:</strong> If using Immediate mode, safety is not guaranteed. Use Banker's Algorithm for deadlock prevention.`;
   }
   document.getElementById('cycles').innerHTML = '<div style="padding:12px;background:var(--card-bg-start);margin-top:10px;border-radius:6px;color:var(--soft);font-size:13px;line-height:1.8;border:1px solid var(--card-border);">' + explanation + '</div>';
 }
@@ -341,7 +340,7 @@ function renderWFG(wfg, cycles, allocations = {}){
 function logAction(message, type='info') {
   const log = document.getElementById('action-log');
   const time = new Date().toLocaleTimeString();
-  const color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#68F3E3' : type === 'warning' ? '#ffaa88' : '#E8ECF1';
+  const color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#3a9b3aff' : type === 'warning' ? '#ffaa88' : '#E8ECF1';
   const entry = `<div style="margin:6px 0;padding:8px;background:var(--wfg-bg);border-radius:4px;border-left:3px solid ${color};"><span style="color:#999;font-size:11px;font-weight:600;">[${time}]</span> ${message}</div>`;
   log.innerHTML = entry + log.innerHTML;
   if(log.children.length > 20) log.lastChild.remove();
