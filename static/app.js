@@ -2,6 +2,39 @@
 let simulation = null;
 let currentNodes = new Map();
 
+// Page navigation functionality
+document.addEventListener('DOMContentLoaded', () => {
+  const navLinks = document.querySelectorAll('.navbar-link');
+  const dashboardPage = document.getElementById('dashboard-page');
+  const documentationPage = document.getElementById('documentation-page');
+  const aboutPage = document.getElementById('about-page');
+  
+  // Set Dashboard as active by default
+  navLinks[0].classList.add('active');
+  
+  navLinks.forEach((link, index) => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      navLinks.forEach(l => l.classList.remove('active'));
+      link.classList.add('active');
+      
+      // Hide all pages
+      if (dashboardPage) dashboardPage.style.display = 'none';
+      if (documentationPage) documentationPage.style.display = 'none';
+      if (aboutPage) aboutPage.style.display = 'none';
+      
+      // Show selected page
+      if (index === 0 && dashboardPage) {
+        dashboardPage.style.display = 'grid';
+      } else if (index === 1 && documentationPage) {
+        documentationPage.style.display = 'block';
+      } else if (index === 2 && aboutPage) {
+        aboutPage.style.display = 'block';
+      }
+    });
+  });
+});
+
 // Theme toggle functionality
 const themeToggle = document.getElementById('theme-toggle');
 const currentTheme = localStorage.getItem('theme') || 'dark';

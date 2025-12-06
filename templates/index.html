@@ -43,7 +43,8 @@
   </div>
   
   <div class="app">
-    <main class="grid">
+    <!-- Dashboard Content -->
+    <main class="grid" id="dashboard-page">
       <section class="card" id="section1">
         <h2>Resource Matrices</h2>
         <div id="mat-content"></div>
@@ -81,6 +82,41 @@
         <div id="action-log"></div>
       </section>
     </main>
+
+    <!-- Documentation Page -->
+    <div id="documentation-page" style="display: none; padding: 2rem; max-width: 1200px; margin: 0 auto;">
+      <h1 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem;">Documentation</h1>
+      <div style="background: var(--card); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h2 style="color: var(--text); margin-bottom: 1rem;">Getting Started</h2>
+        <p style="line-height: 1.8; color: var(--text-muted);">This toolkit provides comprehensive deadlock prevention and recovery mechanisms for resource management systems.</p>
+      </div>
+      <div style="background: var(--card); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h2 style="color: var(--text); margin-bottom: 1rem;">Features</h2>
+        <ul style="line-height: 2; color: var(--text-muted);">
+          <li>Banker's Algorithm for safe state verification</li>
+          <li>Real-time deadlock detection using Wait-For Graphs</li>
+          <li>Resource allocation visualization</li>
+          <li>Process management and recovery strategies</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about-page" style="display: none; padding: 2rem; max-width: 1200px; margin: 0 auto;">
+      <h1 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem;">About</h1>
+      <div style="background: var(--card); padding: 2rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h2 style="color: var(--text); margin-bottom: 1rem;">Deadlock Prevention & Recovery Toolkit</h2>
+        <p style="line-height: 1.8; color: var(--text-muted);">A comprehensive web-based application for understanding and managing deadlocks in operating systems.</p>
+      </div>
+      <div style="background: var(--card); padding: 2rem; border-radius: 8px;">
+        <h2 style="color: var(--text); margin-bottom: 1rem;">Technologies Used</h2>
+        <ul style="line-height: 2; color: var(--text-muted);">
+          <li>Python Flask backend</li>
+          <li>D3.js for graph visualization</li>
+          <li>Modern CSS with theme support</li>
+        </ul>
+      </div>
+    </div>
   </div>
   <script src="/static/app.js?v=2"></script>
 </body>

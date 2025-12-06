@@ -48,11 +48,12 @@ body{margin:0;background-color:var(--bg);background-image:var(--bg-image);backgr
 .navbar-logo{font-size:24px;}
 .navbar-title{font-size:1.5rem;font-weight:300;letter-spacing:0.5px;margin-left:-45px;animation:fadeInDown 0.8s ease-out;}
 .navbar-menu{display:flex;gap:3rem;}
-.navbar-link{color:var(--soft);text-decoration:none;font-size:1rem;font-weight:400;padding:0;border-radius:0;transition:color 0.2s ease;letter-spacing:0.1rem;animation:fadeInDown 0.8s ease-out;}
+.navbar-link{color:var(--soft);text-decoration:none;font-size:1rem;font-weight:400;padding:0 0 5px 0;border-radius:0;transition:all 0.2s ease;letter-spacing:0.1rem;animation:fadeInDown 0.8s ease-out;border-bottom:2px solid transparent;}
 .navbar-link:nth-child(1){animation-delay:0.1s;opacity:0;animation-fill-mode:forwards;}
 .navbar-link:nth-child(2){animation-delay:0.2s;opacity:0;animation-fill-mode:forwards;}
 .navbar-link:nth-child(3){animation-delay:0.3s;opacity:0;animation-fill-mode:forwards;}
 .navbar-link:hover{background:transparent;color:#a7a7a7;}
+.navbar-link.active{font-weight:600;font-size:1.05rem;border-bottom:2px solid var(--soft);}
 .navbar-controls{display:flex;gap:1rem;align-items:center;margin-right:-50px;}
 .app{padding:2rem;padding-top:80px;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 #graph-modal-btn{background:transparent;border:none;padding:0;transition:transform 0.2s ease;}
