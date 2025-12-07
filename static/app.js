@@ -1,6 +1,7 @@
 // Basic UI logic: poll /api/status and /api/wfg and render simple matrices + D3 WFG
 let simulation = null;
 let currentNodes = new Map();
+let deadlockLogged = false; // Track if deadlock message was already logged
 
 // Page navigation functionality
 document.addEventListener('DOMContentLoaded', () => {
@@ -81,6 +82,11 @@ async function refresh(){
   document.getElementById('mat-content').innerHTML = formatMatrices(status);
   const w = await api('wfg');
   renderWFG(w.wfg, w.cycles, status.allocations);
+  
+  // Reset deadlock flag if no cycles (system recovered)
+  if(w.cycles.length === 0 && deadlockLogged) {
+    deadlockLogged = false;
+  }
 }
 function formatMatrices(s){
   let out = '<div style="font-family:monospace;">';
@@ -356,6 +362,13 @@ function renderWFG(wfg, cycles, allocations = {}){
       return `<div style="margin:8px 0;padding:8px;background:rgba(255,107,107,0.25);border-left:3px solid #ff6b6b;border-radius:4px;"><strong>Deadlock Cycle:</strong> ${cycle}<br/><span style="font-size:12px;color:var(--soft);">Each process in this cycle is waiting for resources held by the next process, creating a circular wait condition.</span></div>`;
     }).join('');
     explanation = `⚠️ <strong style="color:#ff6b6b;">DEADLOCK DETECTED!</strong><br/><br/>${cycleDetails}<br/><strong>What this means:</strong> The red highlighted processes and arrows show circular dependencies where:<br/>• Each arrow from process X → Y means "X is waiting for resources currently held by Y"<br/>• The cycle cannot resolve itself without external intervention<br/><br/><strong>Resolution options:</strong><br/>1. Terminate one process in the cycle to break the deadlock<br/>2. Preempt resources from a process (if possible)<br/>3. Use the rollback mechanism if checkpoints are available`;
+    
+    // Log deadlock detection ONLY ONCE
+    if(!deadlockLogged) {
+      const cycleText = cycles.map(c => c.join(' → ') + ' → ' + c[0]).join('; ');
+      logAction(`🚨 <strong style="color:#ff6b6b;">DEADLOCK DETECTED!</strong><br/><span style="font-size:11px;color:#ff6b6b;">▸ Circular wait found: ${cycleText}<br/>▸ Processes are permanently blocked<br/>▸ Manual intervention required (terminate/preempt/rollback)</span>`, 'error');
+      deadlockLogged = true;
+    }
   } else if(linksCopy.length > 0) {
     const waitDetails = linksCopy.map(l => {
       return `<strong>${l.source}</strong> is waiting for resources held by <strong>${l.target}</strong>`;
@@ -503,6 +516,7 @@ document.getElementById('refresh').addEventListener('click', async () => {
     if(data.status === 'reset') {
       document.getElementById('action-log').innerHTML = '';
       currentNodes.clear();
+      deadlockLogged = false; // Reset deadlock flag on system reset
       refresh();
       logAction('🔄 <strong>System Reset Complete</strong><br/><span style="font-size:11px;color:#b3d9ff;margin-left:16px;">▸ All processes terminated and removed<br/>▸ Resources restored to initial state: [R0:10, R1:5, R2:7]<br/>▸ Wait-For Graph cleared<br/>▸ Activity log cleared<br/>▸ System ready for new operations</span>', 'info');
     }
