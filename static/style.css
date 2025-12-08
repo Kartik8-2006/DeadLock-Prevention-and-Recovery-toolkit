@@ -60,6 +60,9 @@ body{margin:0;background-color:var(--bg);background-image:var(--bg-image);backgr
 #graph-modal-btn:hover{transform:scale(1.1);}
 .refresh-icon{display:inline-block;width:18px;height:18px;background-image:var(--refresh-icon);background-size:contain;background-repeat:no-repeat;background-position:center;cursor:pointer;transition:transform 0.2s ease;}
 .refresh-icon:hover{transform:scale(1.1);}
+.undo-btn{background:transparent;border:none;color:var(--soft);padding:6px 10px;border-radius:100px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:14px;transition:all 0.2s ease;}
+.undo-btn:hover:not(:disabled){background:var(--card-bg-start);border-color:var(--soft);transform:scale(1.05);}
+.undo-btn:disabled{opacity:0.3;cursor:not-allowed;}
 .checkbox{opacity:0;position:absolute;pointer-events:none;}
 .checkbox-label{background-color:#1f1f1f;width:40px;height:20px;border-radius:50px;position:relative;padding:3px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:10px;z-index:1;}
 .fa-moon{color:#f1c40f;}

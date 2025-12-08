@@ -120,7 +120,54 @@ def reset():
     try:
         # Reinitialize the resource manager with default values
         manager = ResourceManager([10, 5, 7])
+        # Reset the simulator's deadlock flag
+        sim.deadlock_logged = False
         return jsonify({'status':'reset', 'message':'All processes cleared'})
+    except Exception as e:
+        return jsonify({'error':str(e)}), 400
+
+@app.route('/api/undo', methods=['POST'])
+def undo():
+    data = request.json or {}
+    action_type = data.get('type')
+    pid = str(data.get('pid', ''))
+    
+    try:
+        if action_type == 'create':
+            # Undo process creation by removing the process
+            manager.remove_process(pid)
+            return jsonify({'status':'undone', 'action':'removed process', 'pid':pid})
+        
+        elif action_type == 'request':
+            # Undo resource request by releasing the requested resources
+            request_vec = data.get('request', [])
+            if pid in manager.allocations:
+                # Release the resources that were allocated
+                for i in range(len(request_vec)):
+                    if manager.allocations[pid][i] >= request_vec[i]:
+                        manager.allocations[pid][i] -= request_vec[i]
+                return jsonify({'status':'undone', 'action':'released resources', 'pid':pid})
+            else:
+                return jsonify({'error':'Process not found'}), 400
+        
+        elif action_type == 'release':
+            # Undo resource release by re-allocating the resources
+            release_vec = data.get('release', [])
+            if pid in manager.allocations:
+                avail = manager.available()
+                # Check if resources are available to re-allocate
+                if all(release_vec[i] <= avail[i] for i in range(len(release_vec))):
+                    for i in range(len(release_vec)):
+                        manager.allocations[pid][i] += release_vec[i]
+                    return jsonify({'status':'undone', 'action':'re-allocated resources', 'pid':pid})
+                else:
+                    return jsonify({'error':'Cannot undo: insufficient resources available'}), 400
+            else:
+                return jsonify({'error':'Process not found'}), 400
+        
+        else:
+            return jsonify({'error':'Unknown action type'}), 400
+    
     except Exception as e:
         return jsonify({'error':str(e)}), 400
 

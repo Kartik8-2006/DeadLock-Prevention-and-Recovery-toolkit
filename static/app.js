@@ -2,6 +2,8 @@
 let simulation = null;
 let currentNodes = new Map();
 let deadlockLogged = false; // Track if deadlock message was already logged
+let actionHistory = []; // Track actions for undo functionality
+const MAX_HISTORY = 10; // Keep last 10 actions
 
 // Page navigation functionality
 document.addEventListener('DOMContentLoaded', () => {
@@ -86,6 +88,73 @@ async function refresh(){
   // Reset deadlock flag if no cycles (system recovered)
   if(w.cycles.length === 0 && deadlockLogged) {
     deadlockLogged = false;
+  }
+}
+
+// Helper functions for undo functionality
+function addToHistory(action) {
+  // Store timestamp for log entry removal
+  action.timestamp = Date.now();
+  actionHistory.push(action);
+  if(actionHistory.length > MAX_HISTORY) {
+    actionHistory.shift(); // Remove oldest
+  }
+  updateUndoButton();
+}
+
+function updateUndoButton() {
+  const undoBtn = document.getElementById('undo-btn');
+  if(actionHistory.length > 0) {
+    undoBtn.disabled = false;
+    undoBtn.title = `Undo: ${actionHistory[actionHistory.length - 1].description}`;
+  } else {
+    undoBtn.disabled = true;
+    undoBtn.title = 'No actions to undo';
+  }
+}
+
+function clearHistory() {
+  actionHistory = [];
+  updateUndoButton();
+}
+
+// Undo button click handler
+document.getElementById('undo-btn').addEventListener('click', async () => {
+  if(actionHistory.length === 0) return;
+  
+  const lastAction = actionHistory.pop();
+  updateUndoButton();
+  
+  try {
+    const res = await fetch('/api/undo', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(lastAction)
+    });
+    const json = await res.json();
+    
+    if(json.status === 'undone') {
+      // Remove the log entry that was created for this action
+      removeLastLogEntry();
+      refresh();
+    } else if(json.error) {
+      logAction(`✗ <strong>Undo Failed:</strong> ${json.error}`, 'error');
+      // Re-add to history if undo failed
+      actionHistory.push(lastAction);
+      updateUndoButton();
+    }
+  } catch(err) {
+    logAction(`✗ <strong>Undo Failed:</strong> ${err.message}`, 'error');
+    actionHistory.push(lastAction);
+    updateUndoButton();
+  }
+});
+
+// Helper to remove the most recent log entry
+function removeLastLogEntry() {
+  const log = document.getElementById('action-log');
+  if(log.children.length > 0) {
+    log.firstChild.remove();
   }
 }
 function formatMatrices(s){
@@ -401,6 +470,7 @@ document.getElementById('create-form').addEventListener('submit', async (e)=>{
   if(json.status) {
     const resourceTypes = ['R0', 'R1', 'R2'];
     const maxDetails = max.map((val, idx) => `${resourceTypes[idx]}:${val}`).join(', ');
+    addToHistory({type: 'create', pid, maximum: max, description: `Create process ${pid}`});
     logAction(`✓ <strong>Process Created:</strong> ${pid}<br/><span style="font-size:11px;color:#228B22;">▸ Maximum need declared: [${maxDetails}]<br/>▸ Initial allocation: [0, 0, 0]<br/>▸ Process added to system ready queue</span>`, 'success');
   } else {
     let errorCause = '';
@@ -436,6 +506,7 @@ document.getElementById('request-form').addEventListener('submit', async (e)=>{
     const modeDetails = mode === 'banker' 
       ? `▸ Safe sequence found: ${safeSeq}<br/><div style="background:rgba(104,243,227,0.25);padding:8px;margin-top:8px;border-radius:4px;border-left:3px solid #00a896;"><strong style="color:#00a896;">✅ SYSTEM STATE: SAFE</strong><br/><span style="font-size:11px;color:var(--soft);">All processes can complete in the found sequence. No deadlock possible.</span></div>` 
       : `▸ Resources allocated without safety check<br/><div style="background:rgba(255,170,136,0.25);padding:8px;margin-top:8px;border-radius:4px;border-left:3px solid #ff8844;"><strong style="color:#ff8844;">⚠️ SYSTEM STATE: UNKNOWN</strong><br/><span style="font-size:11px;color:var(--soft);">Safety not verified. Deadlock prevention not active.</span></div>`;
+    addToHistory({type: 'request', pid, request: req, mode, description: `${pid} request [${reqDetails}]`});
     logAction(`✓ <strong>Resource Request Granted:</strong> ${pid}<br/><span style="font-size:11px;color:#b3e3e3;">▸ Requested: [${reqDetails}]<br/>▸ Mode: ${mode === 'banker' ? "Banker's Algorithm" : 'Immediate Allocation'}<br/>${modeDetails}</span>`, 'success');
   } else if(j.status === 'waiting') {
     const resourceTypes = ['R0', 'R1', 'R2'];
@@ -473,6 +544,7 @@ document.getElementById('release-form').addEventListener('submit', async (e)=>{
   if(json.status === 'released') {
     const resourceTypes = ['R0', 'R1', 'R2'];
     const relDetails = rel.map((val, idx) => `${resourceTypes[idx]}:${val}`).join(', ');
+    addToHistory({type: 'release', pid, release: rel, description: `${pid} release [${relDetails}]`});
     
     // Fetch updated state to check if all resources released
     try {
@@ -517,6 +589,7 @@ document.getElementById('refresh').addEventListener('click', async () => {
       document.getElementById('action-log').innerHTML = '';
       currentNodes.clear();
       deadlockLogged = false; // Reset deadlock flag on system reset
+      clearHistory(); // Clear undo history on reset
       refresh();
       logAction('🔄 <strong>System Reset Complete</strong><br/><span style="font-size:11px;color:#b3d9ff;margin-left:16px;">▸ All processes terminated and removed<br/>▸ Resources restored to initial state: [R0:10, R1:5, R2:7]<br/>▸ Wait-For Graph cleared<br/>▸ Activity log cleared<br/>▸ System ready for new operations</span>', 'info');
     }

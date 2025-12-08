@@ -10,6 +10,7 @@ class Simulator(threading.Thread):
         self.poll_interval = poll_interval
         self.on_deadlock = on_deadlock
         self._stop = threading.Event()
+        self.deadlock_logged = False  # Track if deadlock already logged
 
     def run(self):
         while not self._stop.is_set():
@@ -17,8 +18,13 @@ class Simulator(threading.Thread):
             wfg = build_wfg(snapshot)
             cycles = find_cycles(wfg)
             if cycles:
-                if callable(self.on_deadlock):
+                if callable(self.on_deadlock) and not self.deadlock_logged:
                     self.on_deadlock(cycles, snapshot)
+                    self.deadlock_logged = True  # Log only once
+            else:
+                # Reset flag when deadlock clears
+                if self.deadlock_logged:
+                    self.deadlock_logged = False
             time.sleep(self.poll_interval)
 
     def stop(self):
